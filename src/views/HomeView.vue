@@ -4,9 +4,15 @@ import { ref, type Ref } from "vue";
 const name = ref("");
 const description = ref("");
 const daySelection: Ref<number[]> = ref([]);
+const durationSelection: Ref<number[]> = ref([]);
 const location = ref(1);
 const locations = [1, 2, 3, 4];
+// const status = ref(1);
+// const statuses = ["Enabled", "Disabled"];
 const time = ref(new Date());
+const date  = ref(new Date());
+const duration = ref(new Date());
+const image = ref("");
 </script>
 
 <template>
@@ -20,6 +26,14 @@ const time = ref(new Date());
           label="Name"
           placeholder="Name"
         />
+
+        <!-- <va-select
+          v-model="status"
+          class="mb-6 w-full"
+          label="Status "
+          :options="statuses"
+        /> -->
+
         <va-input
           v-model="description"
           class="mb-6 w-full"
@@ -31,8 +45,16 @@ const time = ref(new Date());
         <va-select
           v-model="location"
           class="mb-6 w-full"
-          label="With label"
+          label="Location of reminder"
           :options="locations"
+        />
+
+        <va-input
+          v-model="description"
+          class="mb-6 w-full"
+          label="Description"
+          placeholder="Description"
+          type="textarea"
         />
 
         <div class="mb-6">
@@ -83,7 +105,30 @@ const time = ref(new Date());
           />
         </div>
 
-        <va-time-input class="w-full mb-6" v-model="time" ampm />
+        <VaTimePicker
+          v-model="duration"
+          view="seconds"
+        />
+
+        <va-time-input 
+          class="w-half mb-6"
+          v-model="time" 
+          ampm
+        />
+
+        <va-date-input 
+          class="w-half mb-6"
+          v-model="date" 
+          ampm
+        />
+
+        <!-- <va-file-upload
+          v-model="image"
+          dropzone
+        /> -->
+
+        
+
       </va-card-content>
     </va-card>
   </main>
