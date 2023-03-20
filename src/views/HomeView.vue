@@ -27,13 +27,6 @@ const image = ref("");
           placeholder="Name"
         />
 
-        <!-- <va-select
-          v-model="status"
-          class="mb-6 w-full"
-          label="Status "
-          :options="statuses"
-        /> -->
-
         <va-input
           v-model="description"
           class="mb-6 w-full"
@@ -47,14 +40,6 @@ const image = ref("");
           class="mb-6 w-full"
           label="Location of reminder"
           :options="locations"
-        />
-
-        <va-input
-          v-model="description"
-          class="mb-6 w-full"
-          label="Description"
-          placeholder="Description"
-          type="textarea"
         />
 
         <div class="mb-6">
@@ -126,7 +111,6 @@ const image = ref("");
           v-model="image"
           dropzone
         /> -->
-
         
 
       </va-card-content>
