@@ -4,15 +4,11 @@ import { ref, type Ref } from "vue";
 const name = ref("");
 const description = ref("");
 const daySelection: Ref<number[]> = ref([]);
-const durationSelection: Ref<number[]> = ref([]);
-const location = ref(1);
-const locations = [1, 2, 3, 4];
-// const status = ref(1);
-// const statuses = ["Enabled", "Disabled"];
+const location = ref("");
+const locations = ["Kitchen", "Master bedroom", "Bathroom", "Living Room"];
 const time = ref(new Date());
 const date  = ref(new Date());
 const duration = ref(new Date());
-const image = ref("");
 </script>
 
 <template>
@@ -22,7 +18,7 @@ const image = ref("");
       <va-card-content>
         <va-input
           v-model="name"
-          class="mb-6 w-full"
+          class="mb-6 w-half"
           label="Name"
           placeholder="Name"
         />
@@ -39,10 +35,19 @@ const image = ref("");
           v-model="location"
           class="mb-6 w-full"
           label="Location of reminder"
+          placeholder="Outside"
           :options="locations"
         />
 
-        <div class="mb-6">
+
+        <va-option-list
+          v-model="daySelection"
+          :options="['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']"
+        />
+        Selected:
+        <pre>{{ daySelection }}</pre>
+
+        <!-- <div class="mb-6">
           {{ daySelection }}
         </div>
         <div class="flex gap-2 flex-wrap">
@@ -88,30 +93,26 @@ const image = ref("");
             label="Sunday"
             class="mb-6"
           />
-        </div>
+        </div> -->
 
-        <VaTimePicker
+        <va-time-input
           v-model="duration"
-          view="seconds"
+          clearable
+          label="duration of input"
+          class="mr-3"
         />
 
         <va-time-input 
-          class="w-half mb-6"
+          class="mr-3"
           v-model="time" 
           ampm
         />
 
         <va-date-input 
-          class="w-half mb-6"
+          class="mr-3"
           v-model="date" 
           ampm
         />
-
-        <!-- <va-file-upload
-          v-model="image"
-          dropzone
-        /> -->
-        
 
       </va-card-content>
     </va-card>
