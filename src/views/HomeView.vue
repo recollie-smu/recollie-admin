@@ -7,14 +7,14 @@ const daySelection: Ref<number[]> = ref([]);
 const location = ref("");
 const locations = ["Kitchen", "Master bedroom", "Bathroom", "Living Room"];
 const time = ref(new Date());
-const date  = ref(new Date());
+const date = ref(new Date());
 const duration = ref(new Date());
 </script>
 
 <template>
-  <main>
-    <va-card>
-      <va-card-title> Add Reminder </va-card-title>
+  <main class="p-4">
+    <va-card class="p-4 mb-2">
+      <va-card-title> Details </va-card-title>
       <va-card-content>
         <va-input
           v-model="name"
@@ -38,82 +38,58 @@ const duration = ref(new Date());
           placeholder="Outside"
           :options="locations"
         />
+      </va-card-content>
+    </va-card>
 
+    <va-card class="p-4">
+      <va-card-title> Timing </va-card-title>
+      <va-card-content>
+        <div class="mb-4">
+          <div class="">
+            <h6>
+              {{ duration.getHours() }}:{{ duration.getMinutes() }}:{{
+                duration.getSeconds()
+              }}
+            </h6>
+            <va-time-picker v-model="duration" view="seconds" />
 
-        <va-option-list
-          v-model="daySelection"
-          :options="['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']"
-        />
-        Selected:
-        <pre>{{ daySelection }}</pre>
+            <va-time-input
+              class="mr-3"
+              v-model="time"
+              label="time of reminder"
+              ampm
+            />
 
-        <!-- <div class="mb-6">
-          {{ daySelection }}
+            <va-date-input
+              class="mr-3"
+              v-model="date"
+              label="date of reminder"
+              ampm
+            />
+          </div>
         </div>
-        <div class="flex gap-2 flex-wrap">
-          <va-checkbox
-            v-model="daySelection"
-            :array-value="1"
-            label="Monday"
-            class="mb-6"
-          />
-          <va-checkbox
-            v-model="daySelection"
-            :array-value="2"
-            label="Tuesday"
-            class="mb-6"
-          />
-          <va-checkbox
-            v-model="daySelection"
-            :array-value="3"
-            label="Wednesday"
-            class="mb-6"
-          />
-          <va-checkbox
-            v-model="daySelection"
-            :array-value="4"
-            label="Thursday"
-            class="mb-6"
-          />
-          <va-checkbox
-            v-model="daySelection"
-            :array-value="5"
-            label="Friday"
-            class="mb-6"
-          />
-          <va-checkbox
-            v-model="daySelection"
-            :array-value="6"
-            label="Saturday"
-            class="mb-6"
-          />
-          <va-checkbox
-            v-model="daySelection"
-            :array-value="0"
-            label="Sunday"
-            class="mb-6"
-          />
-        </div> -->
 
-        <va-time-input
-          v-model="duration"
-          clearable
-          label="duration of input"
-          class="mr-3"
-        />
+        <div class="mb-4">
+          <p class="py-2">Set reminder to repeat every:</p>
 
-        <va-time-input 
-          class="mr-3"
-          v-model="time" 
-          ampm
-        />
-
-        <va-date-input 
-          class="mr-3"
-          v-model="date" 
-          ampm
-        />
-
+          <va-option-list
+            v-model="daySelection"
+            class="flex"
+            :options="[
+              'Monday',
+              'Tuesday',
+              'Wednesday',
+              'Thursday',
+              'Friday',
+              'Saturday',
+              'Sunday',
+            ]"
+          />
+          <div class="py-2">
+            Selected:
+            {{ daySelection }}
+          </div>
+        </div>
       </va-card-content>
     </va-card>
   </main>
