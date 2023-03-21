@@ -3,12 +3,14 @@ import { ref, type Ref } from "vue";
 
 const name = ref("");
 const description = ref("");
-const daySelection: Ref<number[]> = ref([]);
+const daySelection: Ref<Number[]> = ref([]);
 const location = ref("");
 const locations = ["Kitchen", "Master bedroom", "Bathroom", "Living Room"];
 const time = ref(new Date());
 const date = ref(new Date());
-const duration = ref(new Date());
+const durationHours = ref(0);
+const durationMinutes = ref(0);
+const durationSeconds = ref(0);
 </script>
 
 <template>
@@ -19,8 +21,8 @@ const duration = ref(new Date());
         <va-input
           v-model="name"
           class="mb-6 w-half"
-          label="Name"
-          placeholder="Name"
+          label="Reminder"
+          placeholder="Reminder"
         />
 
         <va-input
@@ -34,8 +36,8 @@ const duration = ref(new Date());
         <va-select
           v-model="location"
           class="mb-6 w-full"
-          label="Location of reminder"
-          placeholder="Outside"
+          label="Location"
+          placeholder="Location"
           :options="locations"
         />
       </va-card-content>
@@ -45,28 +47,48 @@ const duration = ref(new Date());
       <va-card-title> Timing </va-card-title>
       <va-card-content>
         <div class="mb-4">
-          <div class="">
-            <h6>
-              {{ duration.getHours() }}:{{ duration.getMinutes() }}:{{
-                duration.getSeconds()
-              }}
-            </h6>
-            <va-time-picker v-model="duration" view="seconds" />
-
-            <va-time-input
-              class="mr-3"
-              v-model="time"
-              label="time of reminder"
-              ampm
+          <div class="inline">
+            <span class="mr-3">HOURS</span>
+            <span class="mr-3">MINUTES</span>
+            <span class="mr-3">SECONDS</span>
+          </div>
+          <div class="mr-3 mb-4">
+            <va-input
+              v-model="durationHours"
+              class="mr-1 w-20"
+              type="number"
+              min="0"
+              max="24"
             />
 
-            <va-date-input
-              class="mr-3"
-              v-model="date"
-              label="date of reminder"
-              ampm
+            <va-input
+              v-model="durationMinutes"
+              class="mr-1 w-20"
+              type="number"
+              min="0"
+              max="59"
+            />
+
+            <va-input
+              v-model="durationSeconds"
+              class="mr-1 w-20"
+              type="number"
+              min="0"
+              max="60"
+              step="5"
             />
           </div>
+
+          <!-- this one will put the time in seconds unless they put in their timing?? like if they set the reminder to now then all repeated reminders will be like at 11:25:24 and the seconds part a bit weird -->
+          <va-time-input
+            class="mr-3"
+            v-model="time"
+            manual-input
+            label="time"
+            ampm
+          />
+
+          <va-date-input class="mr-3" v-model="date" label="date" ampm />
         </div>
 
         <div class="mb-4">
@@ -85,9 +107,11 @@ const duration = ref(new Date());
               'Sunday',
             ]"
           />
-          <div class="py-2">
-            Selected:
-            {{ daySelection }}
+          <!-- the v-if for this doesnt work,, i only want it to show up if they selected something from the option list -->
+          <!-- also, how to make the sentence look nicer -->
+          <div class="py-2" v-if="daySelection">
+            Your reminder will repeat every {{ daySelection }} at
+            {{ time.toLocaleTimeString() }}
           </div>
         </div>
       </va-card-content>

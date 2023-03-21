@@ -1,10 +1,11 @@
 <template>
-  <va-navbar
-    color="primary"
-    class="mb-2"
-  >
+  <va-navbar color="primary" class="mb-2">
     <template #left>
       <va-navbar-item class="logo">
+        <picture class="pr-3">
+          <source srcset="../assets/recollieLogo.Png" type="image/png" />
+          <img class="max-h-12" src="../assets/recollieLogo.Png" />
+        </picture>
         Recollie
       </va-navbar-item>
     </template>
