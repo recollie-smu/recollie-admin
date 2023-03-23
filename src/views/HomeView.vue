@@ -17,7 +17,7 @@ onBeforeMount(async () => {
 
 <template>
   <div class="va-table-responsive">
-    <table class="va-table va-table--hoverable ">
+    <table class="va-table va-table--hoverable">
       <thead>
         <tr>
           <th class="">Reminder</th>

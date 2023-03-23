@@ -16,29 +16,32 @@ const DAYS = [
   "Sunday",
 ];
 
+const ROOMS = ["Bedroom", "Kitchen", "Study Room", "Bathroom"];
+
 const name = ref("");
 const status = ref(0);
 const description = ref("");
 const daySelection: Ref<number[]> = ref([]);
-const location = ref(0);
+const location = ref("");
 const time = ref(new Date());
 const date = ref(new Date());
 const durationHours = ref(0);
 const durationMinutes = ref(0);
 const durationSeconds = ref(0);
 const submitReminder = async () => {
-  const tmpDuration = dayjs(
-    `${durationHours.value}:${durationMinutes.value}`,
-    "H:m"
-  );
-  time.value.setSeconds(0);
+  const tmpDuration =
+    (durationHours.value * 60 * 60 +
+      durationMinutes.value * 60 +
+      durationSeconds.value) *
+    1000;
+  const locationIdx = ROOMS.findIndex((loc) => loc === location.value);
   const reminder: ReminderData = {
     name: name.value,
     status: Number(status.value),
     description: description.value,
-    location: location.value,
-    duration: tmpDuration.millisecond(),
-    time: dayjs(time.value).format("hh:mm:ss"),
+    location: locationIdx + 1,
+    duration: tmpDuration,
+    time: dayjs(time.value).format("HH:mm:ss"),
     date: dayjs(date.value).format("YYYY-MM-DD"),
     monday: false,
     tuesday: false,
@@ -119,7 +122,7 @@ const submitReminder = async () => {
             class="mb-6 w-full"
             label="Location"
             placeholder="Location"
-            :options="['Kitchen', 'Master bedroom', 'Bathroom', 'Living Room']"
+            :options="ROOMS"
           />
         </va-card-content>
       </va-card>
