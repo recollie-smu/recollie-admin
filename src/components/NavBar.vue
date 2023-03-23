@@ -4,15 +4,20 @@
       <va-navbar-item class="logo">
         <picture class="pr-3">
           <source srcset="../assets/recollieLogo.Png" type="image/png" />
-          <img class="max-h-12" src="../assets/recollieLogo.Png" />
+          <img class="max-h-10" src="../assets/recollieLogo.Png" />
         </picture>
-        Recollie
+        <h6>Recollie</h6>
       </va-navbar-item>
     </template>
-    <template #right>
-      <va-navbar-item>Upload Reminder</va-navbar-item>
-      <va-navbar-item>View All</va-navbar-item>
-      <va-navbar-item>Update Reminders</va-navbar-item>
+    <template #right
+      ><va-navbar-item>
+        <router-link to="/">View All</router-link></va-navbar-item
+      >
+      <va-navbar-item>
+        <router-link to="/add">Upload Reminder</router-link></va-navbar-item
+      ><va-navbar-item>
+        <router-link to="/update">Edit Reminders</router-link></va-navbar-item
+      >
     </template>
   </va-navbar>
 </template>
