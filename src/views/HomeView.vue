@@ -1,90 +1,68 @@
-<script setup lang="ts">
-import { ref, type Ref } from "vue";
+<script lang="ts" setup>
+import { deleteReminder, getReminders } from "@/apis/supabase";
+import type { Reminder } from "@/types/reminder";
+import dayjs from "dayjs";
+import { onBeforeMount, ref, type Ref } from "vue";
+import { useRouter } from "vue-router";
 
-const name = ref("");
-const description = ref("");
-const daySelection: Ref<number[]> = ref([]);
-const location = ref(1);
-const locations = [1, 2, 3, 4];
-const time = ref(new Date());
+const reminders: Ref<Reminder[]> = ref([]);
+const router = useRouter();
+const removeReminder = async (reminderId: number) => {
+  await deleteReminder(reminderId);
+  reminders.value = await getReminders();
+};
+
+const editReminder = (reminderId: number) => {
+  router.push({ path: "/update", query: { rid: reminderId } });
+};
+
+onBeforeMount(async () => {
+  reminders.value = await getReminders();
+});
 </script>
 
 <template>
-  <main>
-    <va-card>
-      <va-card-title> Add Reminder </va-card-title>
-      <va-card-content>
-        <va-input
-          v-model="name"
-          class="mb-6 w-full"
-          label="Name"
-          placeholder="Name"
-        />
-        <va-input
-          v-model="description"
-          class="mb-6 w-full"
-          label="Description"
-          placeholder="Description"
-          type="textarea"
-        />
-
-        <va-select
-          v-model="location"
-          class="mb-6 w-full"
-          label="With label"
-          :options="locations"
-        />
-
-        <div class="mb-6">
-          {{ daySelection }}
-        </div>
-        <div class="flex gap-2 flex-wrap">
-          <va-checkbox
-            v-model="daySelection"
-            :array-value="1"
-            label="Monday"
-            class="mb-6"
-          />
-          <va-checkbox
-            v-model="daySelection"
-            :array-value="2"
-            label="Tuesday"
-            class="mb-6"
-          />
-          <va-checkbox
-            v-model="daySelection"
-            :array-value="3"
-            label="Wednesday"
-            class="mb-6"
-          />
-          <va-checkbox
-            v-model="daySelection"
-            :array-value="4"
-            label="Thursday"
-            class="mb-6"
-          />
-          <va-checkbox
-            v-model="daySelection"
-            :array-value="5"
-            label="Friday"
-            class="mb-6"
-          />
-          <va-checkbox
-            v-model="daySelection"
-            :array-value="6"
-            label="Saturday"
-            class="mb-6"
-          />
-          <va-checkbox
-            v-model="daySelection"
-            :array-value="0"
-            label="Sunday"
-            class="mb-6"
-          />
-        </div>
-
-        <va-time-input class="w-full mb-6" v-model="time" ampm />
-      </va-card-content>
-    </va-card>
-  </main>
+  <div class="va-table-responsive flex justify-center">
+    <table class="va-table va-table--hoverable">
+      <thead>
+        <tr>
+          <th>Reminder</th>
+          <th>Description</th>
+          <th>Time</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr v-for="reminder in reminders" :key="reminder.id">
+          <td>{{ reminder.name }}</td>
+          <td>{{ reminder.description }}</td>
+          <td>{{ reminder.time }}</td>
+          <td>
+            <va-button
+              icon="clear"
+              color="danger"
+              class="mb-2"
+              @click="removeReminder(reminder.id)"
+            >
+              Delete
+            </va-button>
+            <va-button
+              icon="edit_note"
+              color="warning"
+              class="ml-1 mb-2"
+              @click="editReminder(reminder.id)"
+            >
+              Edit
+            </va-button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
 </template>
+
+<style scoped>
+.va-table-responsive {
+  overflow: auto;
+}
+</style>
