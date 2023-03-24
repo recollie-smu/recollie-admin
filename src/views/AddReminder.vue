@@ -3,7 +3,7 @@ import { ref, type Ref } from "vue";
 import dayjs from "dayjs";
 import customParseFormat from "dayjs/plugin/customParseFormat";
 import type { Reminder, ReminderData } from "@/types/reminder";
-import { addReminder } from "@/apis/supabase";
+import { addImage, addReminder, getBucket } from "@/apis/supabase";
 
 dayjs.extend(customParseFormat);
 const DAYS = [
@@ -28,7 +28,14 @@ const date = ref(new Date());
 const durationHours = ref(0);
 const durationMinutes = ref(0);
 const durationSeconds = ref(0);
+const displayImage = ref();
 const submitReminder = async () => {
+  let imageUrl = "";
+  if (displayImage.value) {
+    const tmpImg = displayImage.value as File;
+    imageUrl = await addImage(tmpImg, name.value);
+  }
+
   const tmpDuration =
     (durationHours.value * 60 * 60 +
       durationMinutes.value * 60 +
@@ -50,7 +57,7 @@ const submitReminder = async () => {
     friday: false,
     saturday: false,
     sunday: false,
-    image: null,
+    image: imageUrl,
     memo: null,
     date_created: new Date(),
     date_updated: null,
@@ -122,6 +129,9 @@ const submitReminder = async () => {
             placeholder="Location"
             :options="ROOMS"
           />
+
+          <p class="font-bold mb-2">Image</p>
+          <va-file-upload v-model="displayImage" dropzone type="single" />
         </va-card-content>
       </va-card>
 
