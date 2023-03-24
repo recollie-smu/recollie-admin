@@ -21,7 +21,8 @@ const router = createRouter({
       path: "/add",
       name: "add",
       component: () => import("../views/AddReminder.vue"),
-    },{
+    },
+    {
       path: "/update",
       name: "update",
       component: () => import("../views/UpdateReminder.vue"),

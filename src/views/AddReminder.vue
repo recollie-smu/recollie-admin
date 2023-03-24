@@ -100,14 +100,12 @@ const submitReminder = async () => {
             placeholder="Reminder"
           />
 
-          <div class="flex align-left items-center">
-            <va-switch
-              v-model="status"
-              label="Enable "
-              left-label
-              class="mb-6"
-            />
-          </div>
+          <va-switch
+            v-model="status"
+            label="Enable / Disable"
+            left-label
+            class="mb-6"
+          />
 
           <va-input
             v-model="description"
@@ -131,31 +129,30 @@ const submitReminder = async () => {
         <va-card-title> Timing </va-card-title>
         <va-card-content>
           <div class="mb-4">
-            <div class="inline">
-              <span class="mr-3">HOURS</span>
-              <span class="mr-3">MINUTES</span>
-              <span class="mr-3">SECONDS</span>
-            </div>
             <div class="mr-3 mb-4">
+              <p class="font-bold mb-2">Duration</p>
               <va-input
+                label="Hours"
                 v-model="durationHours"
-                class="mr-1 w-20"
+                class="mr-1"
                 type="number"
                 min="0"
                 max="23"
               />
 
               <va-input
+                label="Minutes"
                 v-model="durationMinutes"
-                class="mr-1 w-20"
+                class="mr-1"
                 type="number"
                 min="0"
                 max="59"
               />
 
               <va-input
+                label="Seconds"
                 v-model="durationSeconds"
-                class="mr-1 w-20"
+                class="mr-1"
                 type="number"
                 min="0"
                 max="60"
@@ -187,11 +184,6 @@ const submitReminder = async () => {
               class="flex"
               :options="DAYS"
             />
-
-            <div class="py-2" v-if="daySelection.length > 0">
-              Your reminder will repeat every {{ daySelection }} at
-              {{ dayjs(time).format("hh:mm A") }}
-            </div>
           </div>
 
           <div class="flex">

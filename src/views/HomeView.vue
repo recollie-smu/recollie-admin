@@ -1,13 +1,19 @@
 <script lang="ts" setup>
-import { deleteReminder, getReminder, getReminders } from "@/apis/supabase";
-import type { Reminder, ReminderData } from "@/types/reminder";
+import { deleteReminder, getReminders } from "@/apis/supabase";
+import type { Reminder } from "@/types/reminder";
 import dayjs from "dayjs";
 import { onBeforeMount, ref, type Ref } from "vue";
-import { defineComponent } from "vue";
+import { useRouter } from "vue-router";
 
 const reminders: Ref<Reminder[]> = ref([]);
-const removeReminder = async () => {
-  await deleteReminder(reminder.id);
+const router = useRouter();
+const removeReminder = async (reminderId: number) => {
+  await deleteReminder(reminderId);
+  reminders.value = await getReminders();
+};
+
+const editReminder = (reminderId: number) => {
+  router.push({ path: "/update", query: { rid: reminderId } });
 };
 
 onBeforeMount(async () => {
@@ -16,21 +22,18 @@ onBeforeMount(async () => {
 </script>
 
 <template>
-  <div class="va-table-responsive">
+  <div class="va-table-responsive flex justify-center">
     <table class="va-table va-table--hoverable">
       <thead>
         <tr>
-          <th class="">Reminder</th>
+          <th>Reminder</th>
           <th>Description</th>
           <th>Time</th>
+          <th></th>
         </tr>
       </thead>
       <tbody>
-        <tr
-          v-for="reminder in reminders"
-          :key="reminder.id"
-          class="flex items-center"
-        >
+        <tr v-for="reminder in reminders" :key="reminder.id">
           <td>{{ reminder.name }}</td>
           <td>{{ reminder.description }}</td>
           <td>{{ reminder.time }}</td>
@@ -39,9 +42,17 @@ onBeforeMount(async () => {
               icon="clear"
               color="danger"
               class="mb-2"
-              @click="removeReminder(reminder)"
+              @click="removeReminder(reminder.id)"
             >
               Delete
+            </va-button>
+            <va-button
+              icon="edit_note"
+              color="warning"
+              class="ml-1 mb-2"
+              @click="editReminder(reminder.id)"
+            >
+              Edit
             </va-button>
           </td>
         </tr>
