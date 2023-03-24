@@ -16,7 +16,7 @@ const DAYS = [
   "Sunday",
 ];
 
-const ROOMS = ["Bedroom", "Kitchen", "Study Room", "Bathroom"];
+const ROOMS = ["Bathroom", "Bedroom", "Kitchen", "Living Room"];
 
 const name = ref("");
 const status = ref(0);
