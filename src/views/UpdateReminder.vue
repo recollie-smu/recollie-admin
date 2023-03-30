@@ -19,10 +19,12 @@ const DAYS = [
 const ROOMS = ["Bedroom", "Kitchen", "Study Room", "Bathroom"];
 
 dayjs.extend(customParseFormat);
+
 const name = ref("");
 const status = ref(false);
+const repeatSwitch = ref(false);
 const description = ref("");
-const daySelection: Ref<number[]> = ref([]);
+const daySelection: Ref<string[]> = ref([]);
 const location = ref("");
 const time = ref(new Date());
 const date = ref(new Date());
@@ -41,25 +43,25 @@ onBeforeMount(async () => {
       time.value = dayjs(ret.time, "HH:mm:ss").toDate();
       date.value = dayjs(ret.date, "YYYY-MM-DD").toDate();
       if (ret.monday) {
-        daySelection.value.push(0);
+        daySelection.value.push("Monday");
       }
       if (ret.tuesday) {
-        daySelection.value.push(1);
+        daySelection.value.push("Tuesday");
       }
       if (ret.wednesday) {
-        daySelection.value.push(2);
+        daySelection.value.push("Wednesday");
       }
       if (ret.thursday) {
-        daySelection.value.push(3);
+        daySelection.value.push("Thursday");
       }
       if (ret.friday) {
-        daySelection.value.push(4);
+        daySelection.value.push("Friday");
       }
       if (ret.saturday) {
-        daySelection.value.push(5);
+        daySelection.value.push("Saturday");
       }
       if (ret.sunday) {
-        daySelection.value.push(6);
+        daySelection.value.push("Sunday");
       }
       durationHours.value = Math.floor((ret.duration / (1000 * 60 * 60)) % 24);
       durationMinutes.value = Math.floor((ret.duration / (1000 * 60)) % 60);
@@ -75,6 +77,10 @@ const submitReminder = async () => {
       durationMinutes.value * 60 +
       durationSeconds.value) *
     1000;
+  let tmpDate = "";
+  if (!repeatSwitch.value) {
+    tmpDate = dayjs(date.value).format("YYYY-MM-DD");
+  }
   const locationIdx = ROOMS.findIndex((loc) => loc === location.value);
   const reminder: ReminderData = {
     name: name.value,
@@ -83,7 +89,7 @@ const submitReminder = async () => {
     location: locationIdx + 1,
     duration: tmpDuration,
     time: dayjs(time.value).format("HH:mm:ss"),
-    date: dayjs(date.value).format("YYYY-MM-DD"),
+    date: tmpDate,
     monday: false,
     tuesday: false,
     wednesday: false,
@@ -97,31 +103,33 @@ const submitReminder = async () => {
     date_updated: null,
   };
 
-  for (const day of daySelection.value) {
-    switch (day) {
-      case 0:
-        reminder.monday = true;
-        break;
-      case 1:
-        reminder.tuesday = true;
-        break;
-      case 2:
-        reminder.wednesday = true;
-        break;
-      case 3:
-        reminder.thursday = true;
-        break;
-      case 4:
-        reminder.friday = true;
-        break;
-      case 5:
-        reminder.saturday = true;
-        break;
-      case 6:
-        reminder.sunday = true;
-        break;
-      default:
-        break;
+  if (repeatSwitch.value) {
+    for (const day of daySelection.value) {
+      switch (day) {
+        case "Monday":
+          reminder.monday = true;
+          break;
+        case "Tuesday":
+          reminder.tuesday = true;
+          break;
+        case "Wednesday":
+          reminder.wednesday = true;
+          break;
+        case "Thursday":
+          reminder.thursday = true;
+          break;
+        case "Friday":
+          reminder.friday = true;
+          break;
+        case "Saturday":
+          reminder.saturday = true;
+          break;
+        case "Sunday":
+          reminder.sunday = true;
+          break;
+        default:
+          break;
+      }
     }
   }
   await updateReminder(reminder, Number(route.query.rid));
@@ -168,39 +176,38 @@ const submitReminder = async () => {
     <va-card class="p-4">
       <va-card-title> Timing </va-card-title>
       <va-card-content>
+        <div class="mr-3 mb-4">
+          <p class="font-bold mb-2">Duration</p>
+          <va-input
+            label="Hours"
+            v-model="durationHours"
+            class="mr-1"
+            type="number"
+            min="0"
+            max="23"
+          />
+
+          <va-input
+            label="Minutes"
+            v-model="durationMinutes"
+            class="mr-1"
+            type="number"
+            min="0"
+            max="59"
+          />
+
+          <va-input
+            label="Seconds"
+            v-model="durationSeconds"
+            class="mr-1"
+            type="number"
+            min="0"
+            max="60"
+            step="5"
+          />
+        </div>
+
         <div class="mb-4">
-          <div class="mr-3 mb-4">
-            <p class="font-bold mb-2">Duration</p>
-            <va-input
-              label="Hours"
-              v-model="durationHours"
-              class="mr-1"
-              type="number"
-              min="0"
-              max="23"
-            />
-
-            <va-input
-              label="Minutes"
-              v-model="durationMinutes"
-              class="mr-1"
-              type="number"
-              min="0"
-              max="59"
-            />
-
-            <va-input
-              label="Seconds"
-              v-model="durationSeconds"
-              class="mr-1"
-              type="number"
-              min="0"
-              max="60"
-              step="5"
-            />
-          </div>
-
-          <!-- this one will put the time in seconds unless they put in their timing?? like if they set the reminder to now then all repeated reminders will be like at 11:25:24 and the seconds part a bit weird -->
           <va-time-input
             class="mr-3"
             v-model="time"
@@ -208,31 +215,39 @@ const submitReminder = async () => {
             label="time"
             ampm
           />
-
-          <va-date-input class="mr-3" v-model="date" label="date" ampm />
-          <div class="py-2">
-            Your reminder will occur on
-            {{ dayjs(date).format("dddd, DD-MMM-YYYY") }}, at
-            {{ dayjs(time).format("hh:mm A") }}
-          </div>
         </div>
 
-        <div class="mb-4">
+        <div>
+          <va-switch
+            v-model="repeatSwitch"
+            label="Once / Repeat"
+            left-label
+            class="mb-6"
+          />
+        </div>
+
+        <va-date-input
+          class="mr-3"
+          v-model="date"
+          label="date"
+          ampm
+          v-if="!repeatSwitch"
+        />
+
+        <div class="mb-4" v-else>
           <p class="py-2">Set reminder to repeat every:</p>
 
-          <va-option-list
-            v-model="daySelection"
-            class="flex"
-            :options="[
-              'Monday',
-              'Tuesday',
-              'Wednesday',
-              'Thursday',
-              'Friday',
-              'Saturday',
-              'Sunday',
-            ]"
-          />
+          <va-option-list v-model="daySelection" class="flex" :options="DAYS" />
+        </div>
+        <div class="py-2" v-if="!repeatSwitch">
+          Your reminder will occur on
+          {{ dayjs(date).format("dddd, DD-MMM-YYYY") }}, at
+          {{ dayjs(time).format("hh:mm A") }}
+        </div>
+        <div class="py-2" v-else-if="repeatSwitch && daySelection.length > 0">
+          Your reminder will occur every
+          <span v-for="day in daySelection" :key="day"> {{ day }}, </span> at
+          {{ dayjs(time).format("hh:mm A") }}
         </div>
         <div class="flex">
           <va-button @click="submitReminder"> Submit </va-button>

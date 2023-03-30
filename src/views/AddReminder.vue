@@ -43,6 +43,10 @@ const submitReminder = async () => {
       durationMinutes.value * 60 +
       durationSeconds.value) *
     1000;
+  let tmpDate = "";
+  if (!repeatSwitch.value) {
+    tmpDate = dayjs(date.value).format("YYYY-MM-DD");
+  }
   const locationIdx = ROOMS.findIndex((loc) => loc === location.value);
   const reminder: ReminderData = {
     name: name.value,
@@ -51,7 +55,7 @@ const submitReminder = async () => {
     location: locationIdx + 1,
     duration: tmpDuration,
     time: dayjs(time.value).format("HH:mm:ss"),
-    date: dayjs(date.value).format("YYYY-MM-DD"),
+    date: tmpDate,
     monday: false,
     tuesday: false,
     wednesday: false,
@@ -65,31 +69,33 @@ const submitReminder = async () => {
     date_updated: null,
   };
 
-  for (const day of daySelection.value) {
-    switch (day) {
-      case "Monday":
-        reminder.monday = true;
-        break;
-      case "Tuesday":
-        reminder.tuesday = true;
-        break;
-      case "Wednesday":
-        reminder.wednesday = true;
-        break;
-      case "Thursday":
-        reminder.thursday = true;
-        break;
-      case "Friday":
-        reminder.friday = true;
-        break;
-      case "Saturday":
-        reminder.saturday = true;
-        break;
-      case "Sunday":
-        reminder.sunday = true;
-        break;
-      default:
-        break;
+  if (repeatSwitch.value) {
+    for (const day of daySelection.value) {
+      switch (day) {
+        case "Monday":
+          reminder.monday = true;
+          break;
+        case "Tuesday":
+          reminder.tuesday = true;
+          break;
+        case "Wednesday":
+          reminder.wednesday = true;
+          break;
+        case "Thursday":
+          reminder.thursday = true;
+          break;
+        case "Friday":
+          reminder.friday = true;
+          break;
+        case "Saturday":
+          reminder.saturday = true;
+          break;
+        case "Sunday":
+          reminder.sunday = true;
+          break;
+        default:
+          break;
+      }
     }
   }
   await addReminder(reminder);
