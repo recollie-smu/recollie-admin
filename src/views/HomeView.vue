@@ -37,7 +37,7 @@ onBeforeMount(async () => {
           <tr v-for="reminder in reminders" :key="reminder.id">
             <td>{{ reminder.name }}</td>
             <td>{{ reminder.description }}</td>
-            <td>{{ reminder.time }}</td>
+            <td>{{ dayjs(reminder.time, "hh:mm:ss").format("hh:mm A") }}</td>
             <td>
               <va-button
                 icon="clear"
