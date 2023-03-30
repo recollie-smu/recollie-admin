@@ -13,6 +13,7 @@ import {
   VaDateInput,
   VaTimeInput,
   VaOptionList,
+  VaFileUpload,
   VaSelect,
   VaDropdownPlugin,
   createVuesticEssential,
@@ -45,6 +46,7 @@ app.use(
       VaDateInput,
       VaTimeInput,
       VaOptionList,
+      VaFileUpload,
     },
     plugins: {
       VaDropdownPlugin,
