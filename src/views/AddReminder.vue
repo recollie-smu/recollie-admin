@@ -1,11 +1,67 @@
 <script setup lang="ts">
-import { computed, ref, type Ref } from "vue";
+import { computed, ref, watchEffect, type Ref } from "vue";
 import dayjs from "dayjs";
 import customParseFormat from "dayjs/plugin/customParseFormat";
 import type { Reminder, ReminderData } from "@/types/reminder";
-import { addImage, addReminder, getBucket } from "@/apis/supabase";
+import { addImage, addMemo, addReminder } from "@/apis/supabase";
 import { useToast } from "vuestic-ui";
 import { useRouter } from "vue-router";
+import { useDevicesList, useUserMedia } from "@vueuse/core";
+import { randAnimalType, randColor, randProductAdjective } from "@ngneat/falso";
+
+const currentMic = ref<string>();
+const audioChunks = ref<Blob[]>([]);
+const mediaRecorder = ref<MediaRecorder | null>(null);
+const { audioInputs: microphones } = useDevicesList({
+  requestPermissions: true,
+  onUpdated() {
+    if (!microphones.value.find((i) => i.deviceId === currentMic.value))
+      currentMic.value = microphones.value[0]?.deviceId;
+  },
+});
+const audio = ref<HTMLAudioElement>();
+const audioFile = ref<File | null>();
+const audioUrl = ref<string>("");
+const { stream, stop, start, enabled } = useUserMedia({
+  audioDeviceId: currentMic,
+  videoDeviceId: false,
+});
+
+const startRecording = async () => {
+  await start();
+  if (stream.value) {
+    audioChunks.value = [];
+    enabled.value = true;
+    mediaRecorder.value = new MediaRecorder(stream.value, {
+      mimeType: "audio/webm;codecs=opus",
+    });
+    mediaRecorder.value.addEventListener("dataavailable", (event) => {
+      audioChunks.value.push(event.data);
+    });
+    mediaRecorder.value.start();
+  }
+};
+
+const stopRecording = async () => {
+  if (mediaRecorder.value) {
+    mediaRecorder.value.addEventListener("stop", () => {
+      const audioBlob = new Blob(audioChunks.value, { type: "audio/ogg" });
+      audioFile.value = new File(
+        [audioBlob],
+        `${randProductAdjective()}-${randColor()}-${randAnimalType()}.ogg`,
+        { type: "audio/ogg" }
+      );
+
+      audioUrl.value = URL.createObjectURL(audioBlob);
+      if (audio.value) {
+        audio.value.src = audioUrl.value;
+      }
+    });
+    mediaRecorder.value.stop();
+    stop();
+    enabled.value = false;
+  }
+};
 
 dayjs.extend(customParseFormat);
 const DAYS = [
@@ -41,6 +97,11 @@ const submitReminder = async () => {
     imageUrl = await addImage(tmpImg, name.value);
   }
 
+  let memoUrl = "";
+  if (audioFile.value) {
+    memoUrl = await addMemo(audioFile.value, audioFile.value.name);
+  }
+
   const tmpDuration =
     (durationHours.value * 60 * 60 +
       durationMinutes.value * 60 +
@@ -67,7 +128,7 @@ const submitReminder = async () => {
     saturday: false,
     sunday: false,
     image: imageUrl,
-    memo: null,
+    memo: memoUrl,
     date_created: new Date(),
     date_updated: null,
   };
@@ -145,6 +206,28 @@ const submitReminder = async () => {
 
           <p class="font-bold mb-2">Image</p>
           <va-file-upload v-model="displayImage" dropzone type="single" />
+
+          <p class="font-bold mb-2">Voice Memo</p>
+          <div>
+            <div class="flex justify-center items-center">
+              <va-button
+                class="max-w-[12rem] mb-2"
+                @click="startRecording"
+                v-if="!enabled"
+              >
+                Start Recording
+              </va-button>
+              <va-button
+                class="max-w-[12rem] mb-2"
+                @click="stopRecording"
+                color="danger"
+                v-else
+              >
+                Stop Recording
+              </va-button>
+            </div>
+            <audio class="w-full" controls ref="audio"></audio>
+          </div>
         </va-card-content>
       </va-card>
 

@@ -64,15 +64,23 @@ const getBucket = async () => {
 };
 
 const addMemo = async (file: File, reminderName: string) => {
-  // const { data, error } = await supabase.storage
-  //   .from("memo")
-  //   .upload(`public/avatar1.png`, file, {
-  //     cacheControl: "3600",
-  //     upsert: false,
-  //   });
+  let retUrl = "";
+  const { data, error } = await supabase.storage
+    .from("memo")
+    .upload(`public/${reminderName}/${file.name}`, file, {
+      cacheControl: "3600",
+      upsert: false,
+    });
+
+  if (data && data.path) {
+    const { data: publicUrl } = supabase.storage
+      .from("memo")
+      .getPublicUrl(data.path);
+    retUrl = publicUrl.publicUrl;
+  }
+  return retUrl;
 };
 const addImage = async (file: File, reminderName: string) => {
-  console.log(file.name);
   let retUrl = "";
   const { data, error } = await supabase.storage
     .from("image")
@@ -99,4 +107,5 @@ export {
   getReminders,
   getBucket,
   addImage,
+  addMemo,
 };
