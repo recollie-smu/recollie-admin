@@ -4,6 +4,8 @@ import dayjs from "dayjs";
 import customParseFormat from "dayjs/plugin/customParseFormat";
 import type { Reminder, ReminderData } from "@/types/reminder";
 import { addImage, addReminder, getBucket } from "@/apis/supabase";
+import { useToast } from "vuestic-ui";
+import { useRouter } from "vue-router";
 
 dayjs.extend(customParseFormat);
 const DAYS = [
@@ -15,8 +17,9 @@ const DAYS = [
   "Saturday",
   "Sunday",
 ];
-
 const ROOMS = ["Bathroom", "Bedroom", "Kitchen", "Living Room"];
+const { init, close, closeAll } = useToast();
+const router = useRouter();
 
 const name = ref("");
 const status = ref(false);
@@ -99,6 +102,8 @@ const submitReminder = async () => {
     }
   }
   await addReminder(reminder);
+  init({ message: "Reminder Added!", color: "success" });
+  router.push("/");
 };
 </script>
 

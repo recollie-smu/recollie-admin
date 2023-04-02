@@ -16,6 +16,8 @@ import {
   VaFileUpload,
   VaSelect,
   VaDropdownPlugin,
+  VaToast,
+  VaToastPlugin,
   createVuesticEssential,
 } from "vuestic-ui";
 
@@ -47,9 +49,11 @@ app.use(
       VaTimeInput,
       VaOptionList,
       VaFileUpload,
+      VaToast,
     },
     plugins: {
       VaDropdownPlugin,
+      VaToastPlugin,
     },
     config,
   })
