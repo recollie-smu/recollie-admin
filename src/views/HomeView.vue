@@ -2,9 +2,11 @@
 import { deleteReminder, getReminders } from "@/apis/supabase";
 import type { Reminder } from "@/types/reminder";
 import dayjs from "dayjs";
+import CustomParseFormat from "dayjs/plugin/customParseFormat";
 import { onBeforeMount, ref, type Ref } from "vue";
 import { useRouter } from "vue-router";
 
+dayjs.extend(CustomParseFormat);
 const reminders: Ref<Reminder[]> = ref([]);
 const router = useRouter();
 const removeReminder = async (reminderId: number) => {
