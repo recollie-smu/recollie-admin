@@ -1,9 +1,11 @@
 <script setup lang="ts">
-import { ref, type Ref } from "vue";
+import { computed, ref, type Ref } from "vue";
 import dayjs from "dayjs";
 import customParseFormat from "dayjs/plugin/customParseFormat";
 import type { Reminder, ReminderData } from "@/types/reminder";
 import { addImage, addReminder, getBucket } from "@/apis/supabase";
+import { useToast } from "vuestic-ui";
+import { useRouter } from "vue-router";
 
 dayjs.extend(customParseFormat);
 const DAYS = [
@@ -15,13 +17,15 @@ const DAYS = [
   "Saturday",
   "Sunday",
 ];
-
 const ROOMS = ["Bathroom", "Bedroom", "Kitchen", "Living Room"];
+const { init, close, closeAll } = useToast();
+const router = useRouter();
 
 const name = ref("");
-const status = ref(0);
+const status = ref(false);
+const repeatSwitch = ref(false);
 const description = ref("");
-const daySelection: Ref<number[]> = ref([]);
+const daySelection: Ref<string[]> = ref([]);
 const location = ref("");
 const time = ref(new Date());
 const date = ref(new Date());
@@ -29,6 +33,7 @@ const durationHours = ref(0);
 const durationMinutes = ref(0);
 const durationSeconds = ref(0);
 const displayImage = ref();
+
 const submitReminder = async () => {
   let imageUrl = "";
   if (displayImage.value) {
@@ -41,6 +46,10 @@ const submitReminder = async () => {
       durationMinutes.value * 60 +
       durationSeconds.value) *
     1000;
+  let tmpDate = "";
+  if (!repeatSwitch.value) {
+    tmpDate = dayjs(date.value).format("YYYY-MM-DD");
+  }
   const locationIdx = ROOMS.findIndex((loc) => loc === location.value);
   const reminder: ReminderData = {
     name: name.value,
@@ -49,7 +58,7 @@ const submitReminder = async () => {
     location: locationIdx + 1,
     duration: tmpDuration,
     time: dayjs(time.value).format("HH:mm:ss"),
-    date: dayjs(date.value).format("YYYY-MM-DD"),
+    date: tmpDate,
     monday: false,
     tuesday: false,
     wednesday: false,
@@ -63,34 +72,38 @@ const submitReminder = async () => {
     date_updated: null,
   };
 
-  for (const day of daySelection.value) {
-    switch (day) {
-      case 0:
-        reminder.monday = true;
-        break;
-      case 1:
-        reminder.tuesday = true;
-        break;
-      case 2:
-        reminder.wednesday = true;
-        break;
-      case 3:
-        reminder.thursday = true;
-        break;
-      case 4:
-        reminder.friday = true;
-        break;
-      case 5:
-        reminder.saturday = true;
-        break;
-      case 6:
-        reminder.sunday = true;
-        break;
-      default:
-        break;
+  if (repeatSwitch.value) {
+    for (const day of daySelection.value) {
+      switch (day) {
+        case "Monday":
+          reminder.monday = true;
+          break;
+        case "Tuesday":
+          reminder.tuesday = true;
+          break;
+        case "Wednesday":
+          reminder.wednesday = true;
+          break;
+        case "Thursday":
+          reminder.thursday = true;
+          break;
+        case "Friday":
+          reminder.friday = true;
+          break;
+        case "Saturday":
+          reminder.saturday = true;
+          break;
+        case "Sunday":
+          reminder.sunday = true;
+          break;
+        default:
+          break;
+      }
     }
   }
   await addReminder(reminder);
+  init({ message: "Reminder Added!", color: "success" });
+  router.push("/");
 };
 </script>
 
@@ -98,13 +111,13 @@ const submitReminder = async () => {
   <main class="p-4">
     <div class="box">
       <va-card class="p-4 mb-2">
-        <va-card-title class="font-lg"> Details </va-card-title>
+        <va-card-title> Details </va-card-title>
         <va-card-content>
           <va-input
             v-model="name"
             class="mb-6 w-full"
-            label="Reminder"
-            placeholder="Reminder"
+            label="Reminder Name"
+            placeholder="Wash the dishes..."
           />
 
           <va-switch
@@ -118,7 +131,7 @@ const submitReminder = async () => {
             v-model="description"
             class="mb-6 w-full"
             label="Description"
-            placeholder="Description"
+            placeholder="The soap will be in the top cupboard..."
             type="textarea"
           />
 
@@ -138,38 +151,38 @@ const submitReminder = async () => {
       <va-card class="p-4">
         <va-card-title> Timing </va-card-title>
         <va-card-content>
+          <div class="mr-3 mb-4">
+            <p class="font-bold mb-2">Duration</p>
+            <va-input
+              label="Hours"
+              v-model="durationHours"
+              class="mr-1"
+              type="number"
+              min="0"
+              max="23"
+            />
+
+            <va-input
+              label="Minutes"
+              v-model="durationMinutes"
+              class="mr-1"
+              type="number"
+              min="0"
+              max="59"
+            />
+
+            <va-input
+              label="Seconds"
+              v-model="durationSeconds"
+              class="mr-1"
+              type="number"
+              min="0"
+              max="60"
+              step="5"
+            />
+          </div>
+
           <div class="mb-4">
-            <div class="mr-3 mb-4">
-              <p class="font-bold mb-2">Duration</p>
-              <va-input
-                label="Hours"
-                v-model="durationHours"
-                class="mr-1"
-                type="number"
-                min="0"
-                max="23"
-              />
-
-              <va-input
-                label="Minutes"
-                v-model="durationMinutes"
-                class="mr-1"
-                type="number"
-                min="0"
-                max="59"
-              />
-
-              <va-input
-                label="Seconds"
-                v-model="durationSeconds"
-                class="mr-1"
-                type="number"
-                min="0"
-                max="60"
-                step="5"
-              />
-            </div>
-
             <va-time-input
               class="mr-3"
               v-model="time"
@@ -177,16 +190,26 @@ const submitReminder = async () => {
               label="time"
               ampm
             />
-
-            <va-date-input class="mr-3" v-model="date" label="date" ampm />
-            <div class="py-2">
-              Your reminder will occur on
-              {{ dayjs(date).format("dddd, DD-MMM-YYYY") }}, at
-              {{ dayjs(time).format("hh:mm A") }}
-            </div>
           </div>
 
-          <div class="mb-4">
+          <div>
+            <va-switch
+              v-model="repeatSwitch"
+              label="Once / Repeat"
+              left-label
+              class="mb-6"
+            />
+          </div>
+
+          <va-date-input
+            class="mr-3"
+            v-model="date"
+            label="date"
+            ampm
+            v-if="!repeatSwitch"
+          />
+
+          <div class="mb-4" v-else>
             <p class="py-2">Set reminder to repeat every:</p>
 
             <va-option-list
@@ -194,6 +217,16 @@ const submitReminder = async () => {
               class="flex"
               :options="DAYS"
             />
+          </div>
+          <div class="py-2" v-if="!repeatSwitch">
+            Your reminder will occur on
+            {{ dayjs(date).format("dddd, DD-MMM-YYYY") }}, at
+            {{ dayjs(time).format("hh:mm A") }}
+          </div>
+          <div class="py-2" v-else-if="repeatSwitch && daySelection.length > 0">
+            Your reminder will occur every
+            <span v-for="day in daySelection" :key="day"> {{ day }}, </span> at
+            {{ dayjs(time).format("hh:mm A") }}
           </div>
 
           <div class="flex">

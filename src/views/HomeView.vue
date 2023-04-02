@@ -22,42 +22,44 @@ onBeforeMount(async () => {
 </script>
 
 <template>
-  <div class="va-table-responsive flex justify-center">
-    <table class="va-table va-table--hoverable">
-      <thead>
-        <tr>
-          <th>Reminder</th>
-          <th>Description</th>
-          <th>Time</th>
-          <th></th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr v-for="reminder in reminders" :key="reminder.id">
-          <td>{{ reminder.name }}</td>
-          <td>{{ reminder.description }}</td>
-          <td>{{ reminder.time }}</td>
-          <td>
-            <va-button
-              icon="clear"
-              color="danger"
-              class="mb-2"
-              @click="removeReminder(reminder.id)"
-            >
-              Delete
-            </va-button>
-            <va-button
-              icon="edit_note"
-              color="warning"
-              class="ml-1 mb-2"
-              @click="editReminder(reminder.id)"
-            >
-              Edit
-            </va-button>
-          </td>
-        </tr>
-      </tbody>
-    </table>
+  <div class="flex justify-center items-center">
+    <div class="va-table-responsive flex justify-center max-w-6xl">
+      <table class="va-table va-table--hoverable">
+        <thead>
+          <tr>
+            <th>Reminder</th>
+            <th>Description</th>
+            <th>Time</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="reminder in reminders" :key="reminder.id">
+            <td>{{ reminder.name }}</td>
+            <td>{{ reminder.description }}</td>
+            <td>{{ dayjs(reminder.time, "hh:mm:ss").format("hh:mm A") }}</td>
+            <td>
+              <va-button
+                icon="clear"
+                color="danger"
+                class="mb-2"
+                @click="removeReminder(reminder.id)"
+              >
+                Delete
+              </va-button>
+              <va-button
+                icon="edit_note"
+                color="warning"
+                class="ml-1 mb-2"
+                @click="editReminder(reminder.id)"
+              >
+                Edit
+              </va-button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
   </div>
 </template>
 
